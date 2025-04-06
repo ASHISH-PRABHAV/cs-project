@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMS Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@google/generative-ai"></script>
+    <style>
+        :root {
+            --primary-color: #194ce3;
+            --secondary-color: #0851b0;
+            --sidebar-bg: rgba(25, 76, 227, 0.9);
+            --sidebar-header: rgba(8, 81, 176, 0.9);
+            --text-light: #ffffff;
+            --text-dark: #333333;
+            --course-bg: rgba(230, 237, 248, 0.95);
+            --body-bg: url('https://wallpaperaccess.com/full/1393923.jpg');
+            --overlay-color: rgba(0, 0, 0, 0.6);
+            --page-header-color: #ffffff;
+            --search-bg: rgba(255, 255, 255, 0.2);
+            --search-border: #ffffff;
+            --search-placeholder: rgba(255, 255, 255, 0.7);
+            --button-text-color: #ffffff;
+        }
+
+        /* Chatbot Styles */
+        .chatbot-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+
+        .chatbot-btn:hover {
+            transform: scale(1.1);
+            background-color: var(--secondary-color);
+        }
+
+        .chatbot-modal {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 350px;
+            max-height: 500px;
+            background-color: var(--course-bg);
+            border-radius: 10px;
+            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.2);
+            display: none;
+            flex-direction: column;
+            z-index: 1001;
+            overflow: hidden;
+        }
+
+        .chatbot-header {
+            padding: 15px;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chatbot-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0 5px;
+        }
+
+        .chatbot-body {
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+
+        .chatbot-messages {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            padding: 10px 15px;
+            border-radius: 15px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background-color: var(--primary-color);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .bot-message {
+            align-self: flex-start;
+            background-color: var(--sidebar-bg);
+            color: var(--text-light);
+            border-bottom-left-radius: 5px;
+        }
+
+        .chatbot-input {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .chatbot-input input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            outline: none;
+        }
+
+        .chatbot-input button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .chatbot-input button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        /* Loading animation */
+        .typing-animation {
+            display: flex;
+            padding: 10px 15px;
+        }
+
+        .typing-animation span {
+            height: 10px;
+            width: 10px;
+            margin: 0 2px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            display: inline-block;
+            opacity: 0.4;
+        }
+
+        .typing-animation span:nth-child(1) {
+            animation: typing 1s infinite;
+        }
+
+        .typing-animation span:nth-child(2) {
+            animation: typing 1s infinite 0.2s;
+        }
+
+        .typing-animation span:nth-child(3) {
+            animation: typing 1s infinite 0.4s;
+        }
+
+        @keyframes typing {
+            0% {
+                opacity: 0.4;
+                transform: translateY(0);
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(-5px);
+            }
+            100% {
+                opacity: 0.4;
+                transform: translateY(0);
+            }
+        }
+
+        /* Light Theme Variables */
+        [data-theme="light"] {
+            --primary-color: #194ce3;
+            --secondary-color: #0851b0;
+            --sidebar-bg: rgba(255, 255, 255, 0.95);
+            --sidebar-header: rgba(240, 240, 240, 0.95);
+            --text-light: #333333;
+            --text-dark: #333333;
+            --course-bg: rgba(255, 255, 255, 0.95);
+            --body-bg: url('https://images.unsplash.com/photo-1497864149936-d3163f0c0f4b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            --overlay-color: rgba(255, 255, 255, 0.7);
+            --page-header-color: #333333;
+            --search-bg: rgba(0, 0, 0, 0.05);
+            --search-border: #333333;
+            --search-placeholder: rgba(0, 0, 0, 0.5);
+            --button-text-color: #ffffff;
+        }
+
+        /* Dark Theme Variables */
+        [data-theme="dark"] {
+            --primary-color: #4a6bff;
+            --secondary-color: #3a5bd9;
+            --sidebar-bg: rgba(30, 30, 40, 0.9);
+            --sidebar-header: rgba(20, 20, 30, 0.9);
+            --text-light: #ffffff;
+            --text-dark: #e0e0e0;
+            --course-bg: rgba(40, 40, 50, 0.95);
+            --body-bg: url('https://wallpaperaccess.com/full/1393923.jpg');
+            --overlay-color: rgba(0, 0, 0, 0.7);
+            --page-header-color: #ffffff;
+            --search-bg: rgba(255, 255, 255, 0.1);
+            --search-border: #4a6bff;
+            --search-placeholder: rgba(255, 255, 255, 0.6);
+            --button-text-color: #ffffff;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--body-bg) no-repeat center center fixed;
+            background-size: cover;
+            position: relative;
+            min-height: 100vh;
+            transition: margin-left 0.3s, background 0.5s ease;
+            color: var(--text-dark);
+        }
+        
+        /* Overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--overlay-color);
+            z-index: -1;
+            transition: background-color 0.5s ease;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            height: 100%;
+            width: 280px;
+            position: fixed;
+            top: 0;
+            left: -280px;
+            background-color: var(--sidebar-bg);
+            overflow-x: hidden;
+            transition: 0.3s;
+            z-index: 1000;
+            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(5px);
+        }
+        
+        .sidebar.open {
+            left: 0;
+        }
+                 
+        .sidebar-header {
+            padding: 25px;
+            background-color: var(--sidebar-header);
+            color: var(--text-light);
+            text-align: center;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .sidebar-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+        }
+        
+        .sidebar-menu {
+            padding: 15px 0;
+            list-style: none;
+        }
+        
+        .sidebar-menu li {
+            padding: 15px 25px;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+        
+        .sidebar-menu li:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .sidebar-menu li.active {
+            background-color: rgba(0, 0, 0, 0.15);
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .sidebar-menu a {
+            color: var(--text-light);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            font-size: 1.1rem;
+        }
+        
+        .sidebar-menu i {
+            margin-right: 15px;
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        /* Theme Submenu */
+        .theme-submenu {
+            padding-left: 20px;
+            list-style: none;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .theme-submenu.open {
+            max-height: 150px;
+        }
+
+        .theme-submenu li {
+            padding: 10px 15px;
+        }
+
+        .theme-submenu a {
+            font-size: 1rem;
+        }
+
+        .theme-submenu i {
+            font-size: 1rem;
+        }
+        
+        /* Toggle Button */
+        .toggle-btn {
+            position: fixed;
+            left: 20px;
+            top: 20px;
+            font-size: 1.8rem;
+            background: var(--sidebar-bg);
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            z-index: 1001;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s;
+        }
+        
+        .toggle-btn:hover {
+            background: var(--sidebar-header);
+            transform: scale(1.05);
+        }
+        
+        /* Main Content */
+        .main-content {
+            transition: margin-left 0.3s;
+            padding: 20px;
+            color: var(--text-dark);
+            min-height: 100vh;
+        }
+        
+        .sidebar.open + .main-content {
+            margin-left: 280px;
+        }
+        
+        /* Page Header */
+        .page-header {
+            text-align: center;
+            padding: 40px 20px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .page-header h1 {
+            font-size: 2.8rem;
+            margin: 0;
+            color: var(--page-header-color);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            letter-spacing: 1px;
+            font-weight: 700;
+            position: relative;
+            display: inline-block;
+            padding-bottom: 15px;
+        }
+        
+        .page-header h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: var(--page-header-color);
+            border-radius: 3px;
+        }
+        
+        /* Search Container */
+        .search-container {
+            margin: 0 auto 40px;
+            width: 60%;
+            max-width: 600px;
+            position: relative;
+        }
+        
+        .search-container input {
+            width: 100%;
+            padding: 12px 20px;
+            font-size: 1.1rem;
+            border: 2px solid var(--search-border);
+            border-radius: 30px;
+            background-color: var(--search-bg);
+            color: var(--text-dark);
+            transition: all 0.3s;
+        }
+        
+        .search-container input::placeholder {
+            color: var(--search-placeholder);
+        }
+        
+        .search-container input:focus {
+            outline: none;
+            background-color: var(--search-bg);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Course Grid */
+        .container {
+            width: 65%;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .course {
+            background: var(--course-bg);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .course:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .course h3 {
+            margin: 0 0 15px 0;
+            color: var(--primary-color);
+            font-size: 1.4rem;
+        }
+        
+        .course p {
+            color: var(--text-dark);
+            margin-bottom: 20px;
+            flex-grow: 1;
+            line-height: 1.5;
+        }
+        
+        .course button {
+            background: var(--primary-color);
+            color: var(--button-text-color);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+            font-weight: 600;
+            align-self: flex-start;
+        }
+        
+        .course button:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        /* Contact Page Styles */
+        .contact-container {
+            background: var(--course-bg);
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 800px;
+            margin: 0 auto;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .team-member {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .team-member:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .member-icon {
+            width: 60px;
+            height: 60px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-right: 20px;
+        }
+
+        .member-details h3 {
+            margin: 0 0 5px 0;
+            color: var(--primary-color);
+        }
+
+        .member-details p {
+            margin: 0;
+            color: var(--text-dark);
+        }
+
+        .member-details a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .member-details a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .container, .contact-container {
+                width: 90%;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 250px;
+                left: -250px;
+            }
+            
+            .sidebar.open + .main-content {
+                margin-left: 250px;
+            }
+            
+            .page-header h1 {
+                font-size: 2.4rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 220px;
+                left: -220px;
+            }
+            
+            .sidebar.open + .main-content {
+                margin-left: 220px;
+            }
+            
+            .page-header h1 {
+                font-size: 2rem;
+            }
+            
+            .search-container {
+                width: 80%;
+            }
+            
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .team-member {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .member-icon {
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+
+            /* Adjust chatbot for mobile */
+            .chatbot-modal {
+                width: 90%;
+                right: 5%;
+                bottom: 80px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .toggle-btn {
+                left: 10px;
+                top: 10px;
+                width: 40px;
+                height: 40px;
+                font-size: 1.5rem;
+            }
+            
+            .page-header {
+                padding: 30px 10px;
+            }
+            
+            .page-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .search-container {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body data-theme="dark">
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>LMS Navigation</h2>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="active" id="homeBtn">
+                <a href="#dashboard">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+            </li>
+            <li id="contactBtn">
+                <a href="#contact">
+                    <i class="fas fa-envelope"></i>
+                    <span>Contact</span>
+                </a>
+            </li>
+            <li class="has-submenu">
+                <a href="#appearance" id="appearanceToggle">
+                    <i class="fas fa-adjust"></i>
+                    <span>Appearance</span>
+                    <i class="fas fa-chevron-down" style="margin-left: auto; transition: transform 0.3s;"></i>
+                </a>
+                <ul class="theme-submenu" id="themeSubmenu">
+                    <li>
+                        <a href="#" data-theme="light">
+                            <i class="fas fa-sun"></i>
+                            <span>Light Mode</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-theme="dark">
+                            <i class="fas fa-moon"></i>
+                            <span>Dark Mode</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Chatbot Button -->
+    <div class="chatbot-btn" id="chatbotBtn">
+        <i class="fas fa-robot"></i>
+    </div>
+
+    <!-- Chatbot Modal -->
+    <div class="chatbot-modal" id="chatbotModal">
+        <div class="chatbot-header">
+            <h3>LMS Assistant</h3>
+            <button class="close-btn" id="closeChatbot">&times;</button>
+        </div>
+        <div class="chatbot-body" id="chatbotBody">
+            <div class="chatbot-messages" id="chatbotMessages"></div>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" id="chatbotInput" placeholder="Ask me anything about courses...">
+            <button id="sendMessage"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+    
+    <!-- Toggle Button -->
+    <button class="toggle-btn" id="toggleBtn">
+        <i class="fas fa-bars" id="menuIcon"></i>
+    </button>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="overlay"></div>
+        
+        <div id="dashboard" class="page-content">
+            <div class="page-header">
+                <h1>Online Learning Management System</h1>
+            </div>
+
+            <div class="search-container">
+                <input type="text" id="searchBar" onkeyup="searchCourses()" placeholder="Search for courses...">
+            </div>
+
+            <div class="container">
+                <div class="course">
+                    <h3>Web Development</h3>
+                    <p>Learn the basics of HTML, CSS, and JavaScript.</p>
+                    <button onclick="enrollAndRedirect('Web Development', 'WDproject.html')">Enroll Now</button>
+                </div>
+                <div class="course">
+                    <h3>Data Structures</h3>
+                    <p>Learn the key concepts of Data Structures and Algorithms.</p>
+                    <button onclick="enrollAndRedirect('Data Structures', 'DSproject.html')">Enroll Now</button>
+                </div>
+                <div class="course">
+                    <h3>Machine Learning</h3>
+                    <p>Explore the fundamentals of ML and AI.</p>
+                    <button onclick="enrollAndRedirect('Machine Learning', 'MLproject.html')">Enroll Now</button>
+                </div>
+                <div class="course">
+                    <h3>Cyber Security</h3>
+                    <p>Learn how to secure systems from threats.</p>
+                    <button onclick="enrollAndRedirect('Cyber Security', 'CSproject.html')">Enroll Now</button>
+                </div>
+                <div class="course">
+                    <h3>Cloud Computing</h3>
+                    <p>Understand cloud technologies and services.</p>
+                    <button onclick="enrollAndRedirect('Cloud Computing', 'CCproject.html')">Enroll Now</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="contact" class="page-content" style="display: none;">
+            <div class="page-header">
+                <h1>Contact Our Team</h1>
+            </div>
+
+            <div class="contact-container">
+                <div class="team-member">
+                    <div class="member-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="member-details">
+                        <h3>Aditi Yadav</h3>
+                        <p>Email: <a href="mailto:aditiyadav3233@gmail.com">aditiyadav3233@gmail.com</a></p>
+                    </div>
+                </div>
+
+                <div class="team-member">
+                    <div class="member-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="member-details">
+                        <h3>Eshwar Nayak</h3>
+                        <p>Email: <a href="mailto:eshwarnayak0999@gmail.com">eshwarnayak0999@gmail.com</a></p>
+                    </div>
+                </div>
+
+                <div class="team-member">
+                    <div class="member-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="member-details">
+                        <h3>Ashish Prabhav</h3>
+                        <p>Email: <a href="mailto:ashishprabhav001@gmail.com">ashishprabhav001@gmail.com</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Chatbot functionality
+        const chatbotBtn = document.getElementById('chatbotBtn');
+        const chatbotModal = document.getElementById('chatbotModal');
+        const closeChatbot = document.getElementById('closeChatbot');
+        const chatbotInput = document.getElementById('chatbotInput');
+        const sendMessageBtn = document.getElementById('sendMessage');
+        const chatMessages = document.getElementById('chatbotMessages');
+
+        // Toggle chatbot modal
+        chatbotBtn.addEventListener('click', () => {
+            chatbotModal.style.display = 'flex';
+            // Add welcome message if chat is empty
+            if (chatMessages.children.length === 0) {
+                addMessage("Hello! I'm your LMS assistant. How can I help you with your courses today?", 'bot');
+            }
+        });
+
+        closeChatbot.addEventListener('click', () => {
+            chatbotModal.style.display = 'none';
+        });
+
+        // Send message function
+        function sendMessage() {
+            const message = chatbotInput.value.trim();
+            if (message === '') return;
+
+            // Add user message to chat
+            addMessage(message, 'user');
+            chatbotInput.value = '';
+
+            // Show typing animation
+            const typingElement = document.createElement('div');
+            typingElement.className = 'typing-animation';
+            typingElement.innerHTML = '<span></span><span></span><span></span>';
+            chatMessages.appendChild(typingElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // Simulate bot response (replace with actual API call)
+            setTimeout(() => {
+                // Remove typing animation
+                chatMessages.removeChild(typingElement);
+                // Add bot response
+                const responses = [
+                    "I can help you with course information and enrollment.",
+                    "That's a great question about our courses!",
+                    "I'll connect you with the right resources for that topic.",
+                    "Many students find that course very valuable for their career.",
+                    "We offer several learning paths for that subject area."
+                ];
+                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                addMessage(randomResponse, 'bot');
+            }, 1500);
+        }
+
+        // Add message to chat
+        function addMessage(text, sender) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', `${sender}-message`);
+            messageElement.textContent = text;
+            chatMessages.appendChild(messageElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Send message on button click or Enter key
+        sendMessageBtn.addEventListener('click', sendMessage);
+        chatbotInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Course enrollment and redirection function
+        function enrollAndRedirect(courseName, url) {
+            alert(`You have successfully enrolled in ${courseName}!`);
+            window.location.href = url;
+        }
+
+        // Sidebar toggle functionality
+        const toggleBtn = document.getElementById('toggleBtn');
+        const sidebar = document.getElementById('sidebar');
+        const menuIcon = document.getElementById('menuIcon');
+        
+        toggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            sidebar.classList.toggle('open');
+            
+            if (sidebar.classList.contains('open')) {
+                menuIcon.classList.replace('fa-bars', 'fa-times');
+            } else {
+                menuIcon.classList.replace('fa-times', 'fa-bars');
+            }
+        });
+        
+        document.addEventListener('click', (event) => {
+            if (!sidebar.contains(event.target) && event.target !== toggleBtn) {
+                sidebar.classList.remove('open');
+                menuIcon.classList.replace('fa-times', 'fa-bars');
+            }
+        });
+        
+        // Menu item active state
+        const homeBtn = document.getElementById('homeBtn');
+        const contactBtn = document.getElementById('contactBtn');
+        const menuItems = document.querySelectorAll('.sidebar-menu > li:not(.has-submenu)');
+        
+        menuItems.forEach(item => {
+            item.addEventListener('click', () => {
+                menuItems.forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+            });
+        });
+        
+        // Search functionality
+        function searchCourses() {
+            let input = document.getElementById("searchBar").value.toLowerCase();
+            let courses = document.querySelectorAll(".course");
+
+            for (let i = 0; i < courses.length; i++) {
+                let courseTitle = courses[i].getElementsByTagName("h3")[0].innerText.toLowerCase();
+                let courseDesc = courses[i].getElementsByTagName("p")[0].innerText.toLowerCase();
+                
+                if (courseTitle.includes(input) || courseDesc.includes(input)) {
+                    courses[i].style.display = "flex";
+                } else {
+                    courses[i].style.display = "none";
+                }
+            }
+        }
+
+        // Theme switching functionality
+        const appearanceToggle = document.getElementById('appearanceToggle');
+        const themeSubmenu = document.getElementById('themeSubmenu');
+        const themeLinks = document.querySelectorAll('.theme-submenu a');
+        const body = document.body;
+
+        // Toggle theme submenu
+        appearanceToggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            themeSubmenu.classList.toggle('open');
+            
+            // Rotate the chevron icon
+            const chevron = appearanceToggle.querySelector('.fa-chevron-down');
+            if (themeSubmenu.classList.contains('open')) {
+                chevron.style.transform = 'rotate(180deg)';
+            } else {
+                chevron.style.transform = 'rotate(0deg)';
+            }
+        });
+
+        // Set theme from localStorage if available
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            body.setAttribute('data-theme', savedTheme);
+        }
+
+        // Theme selection
+        themeLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const theme = link.getAttribute('data-theme');
+                body.setAttribute('data-theme', theme);
+                localStorage.setItem('theme', theme);
+                
+                // Close the submenu after selection
+                themeSubmenu.classList.remove('open');
+                appearanceToggle.querySelector('.fa-chevron-down').style.transform = 'rotate(0deg)';
+            });
+        });
+
+        // Close submenu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!appearanceToggle.contains(e.target) && !themeSubmenu.contains(e.target)) {
+                themeSubmenu.classList.remove('open');
+                appearanceToggle.querySelector('.fa-chevron-down').style.transform = 'rotate(0deg)';
+            }
+        });
+
+        // Page navigation functionality
+        const dashboardPage = document.getElementById('dashboard');
+        const contactPage = document.getElementById('contact');
+
+        function showPage(page) {
+            dashboardPage.style.display = 'none';
+            contactPage.style.display = 'none';
+            
+            if (page === 'dashboard') {
+                dashboardPage.style.display = 'block';
+                homeBtn.classList.add('active');
+                contactBtn.classList.remove('active');
+            } else if (page === 'contact') {
+                contactPage.style.display = 'block';
+                homeBtn.classList.remove('active');
+                contactBtn.classList.add('active');
+            }
+        }
+
+        homeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            showPage('dashboard');
+            window.location.hash = 'dashboard';
+        });
+
+        contactBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            showPage('contact');
+            window.location.hash = 'contact';
+        });
+
+        // Handle URL hash changes
+        window.addEventListener('hashchange', () => {
+            if (window.location.hash === '#contact') {
+                showPage('contact');
+            } else {
+                showPage('dashboard');
+            }
+        });
+
+        // Initialize page based on URL hash
+        if (window.location.hash === '#contact') {
+            showPage('contact');
+        } else {
+            showPage('dashboard');
+        }
+    </script>
+</body>
+</html>

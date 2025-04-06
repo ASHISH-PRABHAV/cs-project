@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Overview</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .hero {
+            background-image: url('https://i.pinimg.com/736x/a9/eb/d6/a9ebd69a50a24b81d17777d2c0696a88.jpg');
+            background-size: cover;
+            background-position: center;
+            height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            position: relative;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+        }
+        .hero h1 {
+            font-size: 36px;
+            margin: 0;
+            position: relative;
+            z-index: 1;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        .chapters ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .chapter {
+            background-color: rgba(233, 236, 239, 0.9);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .chapter:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            background-color: #e2e6ea;
+            border: 2px solid #007bff;
+        }
+        .chapter h2 {
+            margin: 0;
+            font-size: 20px;
+            color: #007bff;
+            text-decoration: underline;
+        }
+        .chapter h2:hover {
+            color: #0056b3;
+        }
+        .clock-box {
+            color: #6c757d;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: bold;
+            background: transparent;
+        }
+        .clock-icon {
+            color: grey;
+            font-size: 16px;
+        }
+        .rate-course {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .rating {
+            display: flex;
+            justify-content: center;
+            font-size: 24px;
+        }
+        .rating i {
+            cursor: pointer;
+            color: #ccc;
+            transition: color 0.3s ease;
+        }
+        .rating i.active {
+            color: #f39c12;
+        }
+        .progress-container {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .progress-bar {
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+        .progress {
+            height: 100%;
+            background: #28a745;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .progress-text {
+            text-align: center;
+            font-weight: bold;
+            color: #495057;
+        }
+        .checkbox-container {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .checkbox-container input {
+            margin-right: 8px;
+            cursor: pointer;
+        }
+        .checkbox-container label {
+            cursor: pointer;
+            color: #495057;
+            font-size: 14px;
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px;
+        }
+        .action-buttons button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .action-buttons button:hover {
+            background-color: #0056b3;
+        }
+        .action-buttons button.quiz-btn {
+            background-color: #28a745;
+        }
+        .action-buttons button.quiz-btn:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>Course 1: Web Development</h1>
+    </div>
+    <div class="container">
+        <div class="progress-container">
+            <h3>Course Progress</h3>
+            <div class="progress-bar">
+                <div class="progress" id="progress-bar"></div>
+            </div>
+            <div class="progress-text" id="progress-text">0% Complete</div>
+        </div>
+        <section class="chapters">
+            <ul>
+                <li class="chapter">
+                    <h2 onclick="openFullScreenVideo('4WjtQjPQGIs')">Lecture 1: Road Map for Web Development</h2>
+                    <p>Introduction to web development</p>
+                    <p class="clock-box"><i class="fa-solid fa-clock clock-icon"></i> 21:59</p>
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="lecture1" class="video-checkbox">
+                        <label for="lecture1">Mark as completed</label>
+                    </div>
+                </li>
+                <li class="chapter">
+                    <h2 onclick="openFullScreenVideo('HcOc7P5BMi4')">Lecture 2: HTML</h2>
+                    <p>All the core concepts of HTML</p>
+                    <p class="clock-box"><i class="fa-solid fa-clock clock-icon"></i> 2:05:59</p>
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="lecture2" class="video-checkbox">
+                        <label for="lecture2">Mark as completed</label>
+                    </div>
+                </li>
+                <li class="chapter">
+                    <h2 onclick="openFullScreenVideo('ESnrn1kAD4E')">Lecture 3: CSS</h2>
+                    <p>All the core concepts of CSS</p>
+                    <p class="clock-box"><i class="fa-solid fa-clock clock-icon"></i> 7:18:23</p>
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="lecture3" class="video-checkbox">
+                        <label for="lecture3">Mark as completed</label>
+                    </div>
+                </li>
+                <li class="chapter">
+                    <h2 onclick="openFullScreenVideo('ajdRvxDWH4w')">Lecture 4: Introduction to JavaScript</h2>
+                    <p>Basics of JavaScript</p>
+                    <p class="clock-box"><i class="fa-solid fa-clock clock-icon"></i> 1:21:10</p>
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="lecture4" class="video-checkbox">
+                        <label for="lecture4">Mark as completed</label>
+                    </div>
+                </li>
+                <li class="chapter">
+                    <h2 onclick="openFullScreenVideo('SqrppLEljkY')">Lecture 5: Tic-Tac-Toe Game</h2>
+                    <p>Building of tic-tac-toe game using JavaScript</p>
+                    <p class="clock-box"><i class="fa-solid fa-clock clock-icon"></i> 53:34</p>
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="lecture5" class="video-checkbox">
+                        <label for="lecture5">Mark as completed</label>
+                    </div>
+                </li>
+                <li class="chapter">
+                    <h2 onclick="openFullScreenVideo('vfaRzV3P92o')">Lecture 6: Back-end Development</h2>
+                    <p>Back-end course using MERN</p>
+                    <p class="clock-box"><i class="fa-solid fa-clock clock-icon"></i> 6:36:37</p>
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="lecture6" class="video-checkbox">
+                        <label for="lecture6">Mark as completed</label>
+                    </div>
+                </li>
+            </ul>
+            <div class="rate-course">
+                <h3>Rate This Course:</h3>
+                <div class="rating">
+                    <i class="fa-solid fa-star" data-value="1"></i>
+                    <i class="fa-solid fa-star" data-value="2"></i>
+                    <i class="fa-solid fa-star" data-value="3"></i>
+                    <i class="fa-solid fa-star" data-value="4"></i>
+                    <i class="fa-solid fa-star" data-value="5"></i>
+                </div>
+            </div>
+            <div class="action-buttons">
+                <button onclick="window.open('https://mrcet.com/downloads/digital_notes/IT/WEB%20APPLICATION%20DEVELOPMENT.pdf')">View Notes</button>
+                <button class="quiz-btn" onclick="window.open('https://www.codechef.com/learn/topic/web-development')">PRACTICE</button>
+            </div>
+        </section>
+    </div>
+    <script>
+        function openFullScreenVideo(videoId) {
+            var url = `https://www.youtube.com/embed/${videoId}?autoplay=1&fs=1&modestbranding=1&rel=0&showinfo=0&controls=0`;
+            var newTab = window.open(url, '_blank', 'width=800,height=600,fullscreen=yes');
+            if (!newTab) {
+                alert('Popup blocked! Please allow popups for this site.');
+            }
+        }
+        document.addEventListener("DOMContentLoaded", function () {
+            const stars = document.querySelectorAll(".rating i");
+            const checkboxes = document.querySelectorAll(".video-checkbox");
+            const progressBar = document.getElementById("progress-bar");
+            const progressText = document.getElementById("progress-text");
+            const totalVideos = checkboxes.length;
+            checkboxes.forEach((checkbox, index) => {
+                const isChecked = localStorage.getItem(`video-${index+1}`) === 'true';
+                checkbox.checked = isChecked;
+                checkbox.addEventListener("change", function() {
+                    localStorage.setItem(`video-${index+1}`, this.checked);
+                    updateProgress();
+                });
+            });
+            updateProgress();
+            stars.forEach((star) => {
+                star.addEventListener("click", function () {
+                    const ratingValue = parseInt(this.getAttribute("data-value"));
+                    stars.forEach((s) => s.classList.remove("active"));
+                    for (let i = 0; i < ratingValue; i++) {
+                        stars[i].classList.add("active");
+                    }
+                    localStorage.setItem('course-rating', ratingValue);
+                });
+                const savedRating = localStorage.getItem('course-rating');
+                if (savedRating) {
+                    for (let i = 0; i < savedRating; i++) {
+                        stars[i].classList.add("active");
+                    }
+                }
+            });
+            function updateProgress() {
+                let completed = 0;
+                checkboxes.forEach(checkbox => {
+                    if (checkbox.checked) completed++;
+                });
+                const percentage = Math.round((completed / totalVideos) * 100);
+                progressBar.style.width = percentage + "%";
+                progressText.textContent = percentage + "% Complete";
+            }
+        });
+    </script>
+</body>
+</html>
