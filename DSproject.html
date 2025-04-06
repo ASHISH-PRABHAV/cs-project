@@ -19,13 +19,13 @@
             --text-color: #ffffff;
             --text-secondary: rgba(255, 255, 255, 0.7);
         }
-        
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, #1a1a2e, #16213e);
@@ -115,12 +115,12 @@
         .chapter h2:hover {
             color: white;
         }
-        
+
         .chapter p {
             color: var(--text-secondary);
             margin: 8px 0;
         }
-        
+
         .clock-box {
             color: var(--text-secondary);
             font-size: 14px;
@@ -134,7 +134,7 @@
             color: var(--accent-color);
             font-size: 16px;
         }
-        
+
         .rate-course {
             text-align: center;
             margin-top: 30px;
@@ -215,7 +215,7 @@
             color: var(--text-secondary);
             font-size: 14px;
         }
-        
+
         .action-buttons {
             display: flex;
             justify-content: center;
@@ -240,11 +240,11 @@
             transform: translateY(-3px);
             box-shadow: 0 8px 20px rgba(67, 97, 238, 0.6);
         }
-        
+
         .action-buttons button.quiz-btn {
             background: linear-gradient(45deg, #4cc9f0, #4895ef);
         }
-        
+
         .action-buttons button.quiz-btn:hover {
             box-shadow: 0 8px 20px rgba(76, 201, 240, 0.6);
         }
@@ -254,20 +254,20 @@
                 margin: 20px 15px;
                 padding: 15px;
             }
-            
+
             .hero h1 {
                 font-size: 28px;
             }
-            
+
             .chapter {
                 padding: 15px;
             }
-            
+
             .action-buttons {
                 flex-direction: column;
                 gap: 10px;
             }
-            
+
             .action-buttons button {
                 width: 100%;
             }
@@ -299,7 +299,6 @@
                         <label for="lecture1">Mark as completed</label>
                     </div>
                 </li>
-
                 <li class="chapter">
                     <h2 onclick="openFullScreenVideo('W7uB9-TKfTg')">Lecture 2: Queue</h2>
                     <p>Implementation and applications of queue with its types</p>
@@ -309,7 +308,6 @@
                         <label for="lecture2">Mark as completed</label>
                     </div>
                 </li>
-
                 <li class="chapter">
                     <h2 onclick="openFullScreenVideo('q8gdBn9RPeI')">Lecture 3: Linked List</h2>
                     <p>Implementation and applications of linked list along with its types</p>
@@ -319,7 +317,6 @@
                         <label for="lecture3">Mark as completed</label>
                     </div>
                 </li>
-
                 <li class="chapter">
                     <h2 onclick="openFullScreenVideo('5NiXlPrLslg')">Lecture 4: Binary Tree</h2>
                     <p>Implementation and applications of binary tree</p>
@@ -329,7 +326,6 @@
                         <label for="lecture4">Mark as completed</label>
                     </div>
                 </li>
-
                 <li class="chapter">
                     <h2 onclick="openFullScreenVideo('UeRUKRJvPa4')">Lecture 5: Binary Search Tree</h2>
                     <p>Implementation and applications of binary search tree</p>
@@ -339,7 +335,6 @@
                         <label for="lecture5">Mark as completed</label>
                     </div>
                 </li>
-
                 <li class="chapter">
                     <h2 onclick="openFullScreenVideo('EaK6aslcC5g')">Lecture 6: Graphs</h2>
                     <p>Introduction to graphs</p>
@@ -350,7 +345,7 @@
                     </div>
                 </li>
             </ul>
-            
+
             <div class="rate-course">
                 <h3>Rate This Course:</h3>
                 <div class="rating">
@@ -373,7 +368,6 @@
         function openFullScreenVideo(videoId) {
             var url = `https://www.youtube.com/embed/${videoId}?autoplay=1&fs=1&modestbranding=1&rel=0&showinfo=0&controls=0`;
             var newTab = window.open(url, '_blank', 'width=800,height=600,fullscreen=yes');
-
             if (!newTab) {
                 alert('Popup blocked! Please allow popups for this site.');
             }
@@ -386,37 +380,28 @@
             const progressText = document.getElementById("progress-text");
             const totalVideos = checkboxes.length;
 
-            // Initialize checkboxes from localStorage
             checkboxes.forEach((checkbox, index) => {
                 const isChecked = localStorage.getItem(`video-${index+1}`) === 'true';
                 checkbox.checked = isChecked;
-                
+
                 checkbox.addEventListener("change", function() {
                     localStorage.setItem(`video-${index+1}`, this.checked);
                     updateProgress();
                 });
             });
 
-            // Update progress bar initially
             updateProgress();
 
             stars.forEach((star) => {
                 star.addEventListener("click", function () {
                     const ratingValue = parseInt(this.getAttribute("data-value"));
-
-                    // Remove previous active class
                     stars.forEach((s) => s.classList.remove("active"));
-
-                    // Highlight clicked star and all previous stars
                     for (let i = 0; i < ratingValue; i++) {
                         stars[i].classList.add("active");
                     }
-                    
-                    // Store rating in localStorage
                     localStorage.setItem('course-rating', ratingValue);
                 });
-                
-                // Initialize rating from localStorage
+
                 const savedRating = localStorage.getItem('course-rating');
                 if (savedRating) {
                     for (let i = 0; i < savedRating; i++) {
@@ -430,7 +415,6 @@
                 checkboxes.forEach(checkbox => {
                     if (checkbox.checked) completed++;
                 });
-                
                 const percentage = Math.round((completed / totalVideos) * 100);
                 progressBar.style.width = percentage + "%";
                 progressText.textContent = percentage + "% Complete";

@@ -364,7 +364,6 @@
         function openFullScreenVideo(videoId) {
             var url = "https://www.youtube.com/embed/" + videoId + "?autoplay=1&fs=1&modestbranding=1&rel=0&showinfo=0&controls=0";
             var newTab = window.open(url, '_blank', 'width=800,height=600,fullscreen=yes');
-
             if (!newTab) {
                 alert('Popup blocked! Please allow popups for this site.');
             }
@@ -377,37 +376,26 @@
             const progressText = document.getElementById("progress-text");
             const totalVideos = checkboxes.length;
 
-            // Initialize checkboxes from localStorage
             checkboxes.forEach((checkbox, index) => {
                 const isChecked = localStorage.getItem(`video-${index+1}`) === 'true';
                 checkbox.checked = isChecked;
-                
                 checkbox.addEventListener("change", function() {
                     localStorage.setItem(`video-${index+1}`, this.checked);
                     updateProgress();
                 });
             });
 
-            // Update progress bar initially
             updateProgress();
 
             stars.forEach((star) => {
                 star.addEventListener("click", function () {
                     const ratingValue = parseInt(this.getAttribute("data-value"));
-
-                    // Remove previous active class
                     stars.forEach((s) => s.classList.remove("active"));
-
-                    // Highlight clicked star and all previous stars
                     for (let i = 0; i < ratingValue; i++) {
                         stars[i].classList.add("active");
                     }
-                    
-                    // Store rating in localStorage
                     localStorage.setItem('course-rating', ratingValue);
                 });
-                
-                // Initialize rating from localStorage
                 const savedRating = localStorage.getItem('course-rating');
                 if (savedRating) {
                     for (let i = 0; i < savedRating; i++) {
@@ -421,7 +409,6 @@
                 checkboxes.forEach(checkbox => {
                     if (checkbox.checked) completed++;
                 });
-                
                 const percentage = Math.round((completed / totalVideos) * 100);
                 progressBar.style.width = percentage + "%";
                 progressText.textContent = percentage + "% Complete";

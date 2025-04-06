@@ -15,13 +15,13 @@
             --success-color: #4cc9f0;
             --error-color: #f72585;
         }
-        
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, #1a1a2e, #16213e);
@@ -31,7 +31,7 @@
             min-height: 100vh;
             color: var(--light-color);
         }
-        
+
         .login-container {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
@@ -44,12 +44,12 @@
             text-align: center;
             animation: fadeIn 0.8s ease-in-out;
         }
-        
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
+
         .login-container h2 {
             font-size: 2.5rem;
             margin-bottom: 30px;
@@ -58,7 +58,7 @@
             position: relative;
             display: inline-block;
         }
-        
+
         .login-container h2::after {
             content: '';
             position: absolute;
@@ -70,12 +70,12 @@
             background: var(--accent-color);
             border-radius: 2px;
         }
-        
+
         .input-group {
             position: relative;
             margin-bottom: 25px;
         }
-        
+
         .input-group input {
             width: 100%;
             padding: 15px 20px;
@@ -86,17 +86,17 @@
             color: white;
             transition: all 0.3s ease;
         }
-        
+
         .input-group input:focus {
             outline: none;
             border-color: var(--accent-color);
             background: rgba(255, 255, 255, 0.15);
         }
-        
+
         .input-group input::placeholder {
             color: rgba(255, 255, 255, 0.6);
         }
-        
+
         .login-btn {
             width: 100%;
             padding: 15px;
@@ -111,41 +111,41 @@
             margin-top: 10px;
             box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
         }
-        
+
         .login-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 7px 20px rgba(67, 97, 238, 0.6);
         }
-        
+
         .login-btn:active {
             transform: translateY(0);
         }
-        
+
         .login-btn:disabled {
             background: rgba(67, 97, 238, 0.5);
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
         }
-        
+
         .signup-text {
             margin-top: 25px;
             font-size: 0.9rem;
             color: rgba(255, 255, 255, 0.7);
         }
-        
+
         .signup-text a {
             color: var(--accent-color);
             text-decoration: none;
             font-weight: 500;
             transition: all 0.3s ease;
         }
-        
+
         .signup-text a:hover {
             color: white;
             text-decoration: underline;
         }
-        
+
         #message {
             margin-top: 20px;
             padding: 10px;
@@ -153,19 +153,19 @@
             font-size: 0.9rem;
             display: none;
         }
-        
+
         .success {
             background-color: rgba(76, 201, 240, 0.2);
             color: var(--success-color);
             display: block;
         }
-        
+
         .error {
             background-color: rgba(247, 37, 133, 0.2);
             color: var(--error-color);
             display: block;
         }
-        
+
         .spinner {
             display: inline-block;
             width: 1rem;
@@ -177,17 +177,17 @@
             margin-right: 8px;
             vertical-align: middle;
         }
-        
+
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-        
+
         @media (max-width: 480px) {
             .login-container {
                 padding: 30px 20px;
                 margin: 0 15px;
             }
-            
+
             .login-container h2 {
                 font-size: 2rem;
             }
@@ -212,26 +212,20 @@
 
     <script>
         document.getElementById('login-form').addEventListener('submit', async function(event) {
-            event.preventDefault(); 
-            
+            event.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const message = document.getElementById('message');
             const submitBtn = document.querySelector('.login-btn');
-            
-            // Show loading state
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<span class="spinner"></span> Processing...';
-            
             try {
                 const response = await fetch('http://localhost:3000/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })
                 });
-
                 const result = await response.json();
-
                 if (response.ok) {
                     message.innerText = 'Login successful! Redirecting...';
                     message.className = 'success';
@@ -247,7 +241,6 @@
                 message.innerText = 'Network error. Please try again later.';
                 message.className = 'error';
             } finally {
-                // Reset button state
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'LOGIN';
             }
